@@ -6,23 +6,19 @@ import prompts
 import math
 import io
 
-data_table = "winequality-red.csv"
+data_table = "production_api_debug_rows.csv"
 
 
 
 
 def main():
     df = pd.read_csv(data_table)
-    
-    x = df.columns
-    y = df['quality']
-    create_sub_scatterplots(df, x, y)
     # data_info(df)
     # data_head(df)
     # data_nunique(df)
     # unique(df, 'api_phase')
     # description = call_describe(df)
-   
+    info = data_info(df)
     # response = prompts.evaluate_data_info(info, verbose=False)
     # x = df['id']
     # y = df['execution_time']
@@ -99,7 +95,7 @@ def data_describe(df):
 def unique(df, column_name):
 
     phases = df[column_name].unique()
-    # create_sub_scatterplots(df, phases)
+    create_sub_scatterplots(df, phases)
 
 
 
@@ -142,19 +138,20 @@ def check_data_types(df):
 # Actual Components
     
 # Creates scatter plots for each phase
-def create_sub_scatterplots(df, x, y):
-    columns = df.columns
+def create_sub_scatterplots(df, x, y, phases):
+   
     # Create the dimensions of displaying multiple scatterplots
-    count_subplots = len(columns)
-    rows = math.ceil(4)
-    fig, axs = plt.subplots(rows, 4, figsize=(20, 10))
+    count_subplots = len(phases)
+    columns = 4
+    rows = math.ceil(count_subplots / columns)
+    fig, axs = plt.subplots(rows, columns, figsize=(20, 10))
 
     # Iterate through the phases and create a scatterplot for each
-    for i, column in enumerate(columns):
+    for i, phase in enumerate(phases):
         ax = axs[i // 4, i % 4]
-        data = df[df[column] == column]
+        data = df[df[phase] == phase]
         ax.scatter(data[x], data[y])
-        ax.set_title(column)
+        ax.set_title(phase)
 
     plt.tight_layout()
     plt.show()
