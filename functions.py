@@ -5,26 +5,41 @@ import seaborn as sns
 import prompts 
 import math
 import io
+from pandas.plotting import table
+from PIL import Image, ImageDraw, ImageFont
 
-data_table = "production_api_debug_rows.csv"
+data_table = "winequality-red.csv"
+# data_table = "production_api_debug_rows.csv"
 
 
 
 
 def main():
     df = pd.read_csv(data_table)
-    # data_info(df)
-    # data_head(df)
-    # data_nunique(df)
-    # unique(df, 'api_phase')
-    # description = call_describe(df)
-    info = data_info(df)
-    # response = prompts.evaluate_data_info(info, verbose=False)
-    # x = df['id']
-    # y = df['execution_time']
-    # create_scatterplot(x,y)
-    # print(response)
+    # phases = df['api_phase'].unique()
+    columns = df.columns
+    create_histograms(df, columns)
+  
 
+# Functions to save outputs of exploritory data analysis as images
+
+def save_table_as_image(data, filename):
+    filename = f"./report images/{filename}"
+    fig, ax = plt.subplots(figsize=(data.shape[1], data.shape[0]))
+    ax.axis('off')
+    tbl = table(ax, data, loc='center', cellLoc='center', rowLoc='center')
+    plt.savefig(filename, bbox_inches='tight', dpi=300)
+    plt.close()
+
+
+def text_to_image_pil(text, filename):
+    filename = f"./report images/{filename}"
+    width, height = 800, 600 
+    image = Image.new('RGB', (width, height), color = (255, 255, 255))
+    d = ImageDraw.Draw(image)
+    font = ImageFont.load_default()
+    d.text((10,10), text, fill=(0,0,0), font=font)
+    image.save(filename)
 
 
 
@@ -39,17 +54,14 @@ def data_info(df):
     info_str = buffer.getvalue()
     return info_str
     
-
-
 # pandas.DataFrame.head() displays the first 5 rows of the data frame
 # Returns type of caller - the first n rows
 # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html
 def data_head(df, rows=2):
     result_head = df.head(rows)
+    
     formatted_result_head = result_head.to_string()
     return formatted_result_head
-
-
 
 # pandas.DataFrame.tail() displays the last 5 rows of the data frame
 # Returns type of caller - the last n rows
@@ -77,27 +89,21 @@ def data_null(df):
     formatted_result_null = result_null.to_string()
     return formatted_result_null
 
-
-
 # pandas.DataFrame.describe() displays the summary statistics of the data frame
 # Returns a Series or DataFrame
 # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html
 def data_describe(df):
-    result = df.describe(include="number")
-    result_describe_formatted = result.to_string()
+    describe_result = df.describe(include="number")
+    result_describe_formatted = describe_result.to_string()
     return result_describe_formatted
-
-
 
 # pandas.DataFrame.unique() displays the unique values in a column
 # Returns a series
 # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.unique.html
 def unique(df, column_name):
-
     phases = df[column_name].unique()
-    create_sub_scatterplots(df, phases)
-
-
+    print(phases)
+    create_sub_scatterplots_unique(df, phases)
 
 # pandas.DataFrame.drop() drops a column
 # Returns a DataFrame or None
@@ -136,26 +142,6 @@ def check_data_types(df):
 
 
 # Actual Components
-    
-# Creates scatter plots for each phase
-def create_sub_scatterplots(df, x, y, phases):
-   
-    # Create the dimensions of displaying multiple scatterplots
-    count_subplots = len(phases)
-    columns = 4
-    rows = math.ceil(count_subplots / columns)
-    fig, axs = plt.subplots(rows, columns, figsize=(20, 10))
-
-    # Iterate through the phases and create a scatterplot for each
-    for i, phase in enumerate(phases):
-        ax = axs[i // 4, i % 4]
-        data = df[df[phase] == phase]
-        ax.scatter(data[x], data[y])
-        ax.set_title(phase)
-
-    plt.tight_layout()
-    plt.show()
-
 
 
 # Creates a scatterplot
@@ -163,20 +149,88 @@ def create_scatterplot(x,y):
     plt.scatter(x,y)
     plt.show()
 
+# Creates multiple scatter plots for columns 
+def create_sub_scatterplots_unique(df, columns):
+ 
 
+    x = df['quality']
+    count_subplots = len(columns)
+    columns = 4
+    rows = math.ceil(count_subplots / columns)
+    fig, axs = plt.subplots(rows, columns, figsize=(20, 10))
+
+    for i, column in enumerate(columns):
+        y = df[column]
+        ax = axs[i//4, i%4]  
+        ax.scatter(y, x)
+        ax.set_title(f'Column: {column}')
+        ax.set_xlabel('Quality')
+        ax.set_ylabel(f"{column}")
+
+    plt.tight_layout()
+    plt.show()
+
+
+
+# Creates scatter plots for unique values in a column
+def create_sub_scatterplots_unique(df, phases):
+    print(phases)
+
+    x = df['quality']
+    count_subplots = len(phases)
+    columns = 4
+    rows = math.ceil(count_subplots / columns)
+    fig, axs = plt.subplots(rows, columns, figsize=(20, 10))
+
+
+    for i, phase in enumerate(phases):
+        y = df[phase]
+        ax = axs[i//4, i%4]  
+        ax.scatter(y, x)
+        ax.set_title(f'Phase: {phase}')
+        ax.set_xlabel('Quality')
+        ax.set_ylabel(f"{phase}")
+
+    plt.tight_layout()
+    plt.show()
+
+
+# Creates a histogram
 def create_histogram(x):
     plt.hist(x)
     plt.show()
 
+# Creates multiple histograms
+def create_histograms(df, columns):
+    num_columns = len(columns)
+    rows = 2  
+    cols = math.ceil(num_columns / rows)
+    
+    fig, axs = plt.subplots(rows, cols, figsize=(20, 10))
+    axs = axs.flatten()  
 
+    for i, column in enumerate(columns):
+        if i < len(axs): 
+            axs[i].hist(df[column], bins=20) 
+            axs[i].set_title(f'Histogram of {column}')
+            axs[i].set_xlabel(column)
+            axs[i].set_ylabel('Frequency')
+    
+    for j in range(i + 1, len(axs)):
+        axs[j].set_visible(False)
+    
+    plt.tight_layout()
+    plt.show()
+
+# Creates a boxplot
 def create_boxplot(x):
     sns.boxplot(x)
     plt.show()
 
+# Creates a heatmap
 def create_heatmap(df):
     sns.heatmap(df.corr(), annot=True)
     plt.show()
-
 
 
 
