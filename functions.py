@@ -8,8 +8,9 @@ import io
 from pandas.plotting import table
 from PIL import Image, ImageDraw, ImageFont
 
-data_table = "winequality-red.csv"
+# data_table = "data.csv"
 # data_table = "production_api_debug_rows.csv"
+data_table = "winequality-red.csv"
 
 
 
@@ -19,6 +20,7 @@ def main():
     # phases = df['api_phase'].unique()
     columns = df.columns
     create_histograms(df, columns)
+    # create_boxplot(df['quality'])
   
 
 # Functions to save outputs of exploritory data analysis as images
@@ -147,6 +149,10 @@ def check_data_types(df):
 # Creates a scatterplot
 def create_scatterplot(x,y):
     plt.scatter(x,y)
+    plt.title('Height vs Weight')
+    plt.xlabel('Height')
+    plt.ylabel('Weight')
+
     plt.show()
 
 # Creates multiple scatter plots for columns 

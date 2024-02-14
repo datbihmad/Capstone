@@ -34,29 +34,12 @@ def evaluate_exploratory_data_analysis(data_info_result, data_describe_result, d
     return completion
     
 
-def evaluate_data_describe(data_info_result, data_describe_result, data_head_result, schema_description, verbose=False):
-     
-    system = f"\nI want you to do data analysis. \n\nThis is the output from a function pandas.describe(). This is from the python package pandas and is originally a data frame. This function is used for giving a descriptive statistical summary of numerical variables in the data frame. {schema_description} \n\nI would like you to give me a summary of what each of the outputs mean. Please note anything interesting or noteworthy about the data. "
-    user = f"{data_info_result} \n\n{data_describe_result} \n\n{data_head_result}"
-    # Convert the system and user strings to a Messages object
-    messages = util.convert_to_messages(system, user)
-    # Get the parameters to call the OpenAI API
-    params = util.get_chat_completion_params("gpt-4", messages, temperature=0.4)
-    # Actually call the OpenAI ChatCompletion API, get the completion message
-    completion = util.create_chat_completion(params)
 
-    if verbose:
-        print(completion)
-
-    return completion
-
-
-  
-
-def evaluate_data_info(info, verbose=False):
+def evaluate_analysis_technique(data_input, verbose=False):
+    system = "\nYou are a data science analyst. Your speciality is in figuring out what data science function to use based on the analysis you want to perform on the data.\n\nYour boss will provide you with summaries in JSON format from an exploratory data analysis. This will also include a description of the schema of the data you will be performing an analysis on. \n\nYour boss has also provided you with a list of functions that another expert will be using to call on. You have to choose from this list of functions in order for the expert to perform this analysis. \n\nIndex 1: create_scatterplot(x,y)\n- This function create a single function based on input variables x and y.\n\nIndex 2: create_scatterplots(df, columns)\n- This function creates multiple scatter plots based on the data examining unique columns . Takes the dataframe and columns as input variables.\n\nIndex 3: create_scatterplots_unique(df, phases):\n- This function creates multiple scatter plots based on the data examining unique variables within a column . Takes the data frame and unique column variables as input.\n\nIndex 4: create_histogram(x)\n- This function creates a single histogram based on the frequency of one input variable (a column) x.\n\nIndex 5: create_histograms(df, columns)\n- This functions creates multiple histograms based on the frequency of many columns given the input variables data frame and columns.\n\nIndex 6: create_boxplot(x)\n- This function created a box plot given one input variable x which is likely a specific column of values\n  \nIndex 7: create_heatmap(df)\n- This function creates a heat map of the data frame. It is given the entire data frame as an input variable. \n\n\nFollowing these instructions, you will choose which functions to use\n1. Read all of the provided summaries and exploratory data analysis fully.\n2. Write a short plan on which analysis technique you plan on using and why you chose that specific one and also how you are planning on using it.\n- analysis_technique should be the data science technique that should be used for data analysis\n- rationale should be why you chose to use this technique \n3. Return the index of the function that you would like to call to perform analysis technique\n- This should be the function to call based on analysis technique given the options above. Pick only one function.\n\nPlease put your answer in the following json format:\n{\n  \"plan\": {\n    \"analysis_technique\": \"Insert analysis technique here\",\n    \"rationale\": \"Explain why this analysis technique was chosen based on the data and objectives\"\n},\n\"function_to_call\": \n}\n"
     
-    system = "I want you to do data analysis. \n\nThis is the output from a function pandas.info(). This is from the python package pandas and is originally a data frame. This function is used for displaying data types and information about the data frame. \n\nI would like you to give me a summary of what each of the outputs mean. \n\nDescribe what the data set is and please note anything interesting or noteworthy about the data."
-    user = f"{info}"
+    
+    user = f"{data_input}"
     # Convert the system and user strings to a Messages object
     messages = util.convert_to_messages(system, user)
     # Get the parameters to call the OpenAI API
@@ -68,4 +51,3 @@ def evaluate_data_info(info, verbose=False):
         print(completion)
 
     return completion
-
