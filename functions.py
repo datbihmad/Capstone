@@ -7,10 +7,11 @@ import math
 import io
 from pandas.plotting import table
 from PIL import Image, ImageDraw, ImageFont
+import os
 
 # data_table = "data.csv"
 # data_table = "production_api_debug_rows.csv"
-data_table = "winequality-red.csv"
+data_table = "data.csv"
 
 
 
@@ -18,8 +19,7 @@ data_table = "winequality-red.csv"
 def main():
     df = pd.read_csv(data_table)
     # phases = df['api_phase'].unique()
-    columns = df.columns
-    create_histograms(df, columns)
+    create_scatterplot(df['Height'], df['Weight'])
     # create_boxplot(df['quality'])
   
 
@@ -42,6 +42,12 @@ def text_to_image_pil(text, filename):
     font = ImageFont.load_default()
     d.text((10,10), text, fill=(0,0,0), font=font)
     image.save(filename)
+
+
+def graph_to_image(graph, filename):
+    filename = f"./report images/{filename}"
+    graph.savefig(filename)
+    plt.close()
 
 
 
@@ -152,11 +158,26 @@ def create_scatterplot(x,y):
     plt.title('Height vs Weight')
     plt.xlabel('Height')
     plt.ylabel('Weight')
-
-    plt.show()
+    
+    
+    folder_path = 'report images'  
+    filename = 'scatterplot.png'
+    
+    
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    
+    # Combine the folder path and filename to get the full path
+    file_path = os.path.join(folder_path, filename)
+    
+    # Save the figure to the specified path
+    plt.savefig(file_path)
+    
+    # Close the plot to free memory
+    plt.close()
 
 # Creates multiple scatter plots for columns 
-def create_sub_scatterplots_unique(df, columns):
+def create_sub_scatterplots(df, columns):
  
 
     x = df['quality']
