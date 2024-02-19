@@ -29,16 +29,25 @@ def main():
     df = read_csv_file(file)
     exploratory_data_response = exploratory_data_analysis(df)
     analysis_technique_response = analysis_technique(exploratory_data_response)
+    graph_labels = prompts.evaluate_graph_labels(analysis_technique_response)
+
+    print(graph_labels)
+
     if isinstance(exploratory_data_response, str):
         exploratory_data_response = json.loads(exploratory_data_response)
         print(exploratory_data_response)
     if isinstance(analysis_technique_response, str):
         analysis_technique_response = json.loads(analysis_technique_response)
+    if isinstance(graph_labels, str):
+       graph_labels = json.loads(graph_labels)
+
+       
+    graph_image = create_analysis(analysis_technique_response, graph_labels, df)
+
     formatted_exploratory_data = format_json_data_for_report(exploratory_data_response)
     formatted_analysis_technique = format_analysis_plan_for_report(analysis_technique_response)
-    graph_image = f"./report images/scatterplot.png"
     build_pdf_report(formatted_exploratory_data, formatted_analysis_technique, graph_image)
-    # create_analysis(analysis_technique_response, df)
+    
 
 
 # Load in data or read data
@@ -59,7 +68,7 @@ def exploratory_data_analysis(df):
     api_schema_description = "The data we are looking at is on production debugging. The rows in the data frame denote a different api phase. Id is an identifier of each api phase. Execution time is of data type int and is how much time the api phase took to complete."
     data_schema_description = "The data we are looking at simple height and weight of different people. They are both int values. Height is the height of the person in inches and weight is the weight of the person in pounds."
     wine_schema_description = "The data we are looking at is on red wine. The rows in the data frame denote a different wine. The columns are the different attributes of the wine. The data is a mix of int and float values."
-    exploratory_data_response = prompts.evaluate_exploratory_data_analysis(data_info_result, data_describe_result, data_head_result, data_nunique_result, data_null_result, wine_schema_description, verbose=True)
+    exploratory_data_response = prompts.evaluate_exploratory_data_analysis(data_info_result, data_describe_result, data_head_result, data_nunique_result, data_null_result, data_schema_description, verbose=True)
     return exploratory_data_response
   
 
@@ -74,12 +83,16 @@ def analysis_technique(exploratory_data_response):
  
     return analysis_technique_response
 
-def create_analysis(analysis_technique_response, df):
+
+
+def create_analysis(analysis_technique_response, graph_labels, df):
     try:
         validated_data = AnalysisTechniqueResponse(**analysis_technique_response)
     except ValidationError as e:
         print(f"Validation Error: {e}")
         return
+    
+    graph_labels = graph_labels
 
     index = validated_data.function_to_call
     input_params = validated_data.input_parameters  
@@ -100,8 +113,9 @@ def create_analysis(analysis_technique_response, df):
         if index == 1:
             x_column = input_params['x']
             y_column = input_params['y']
-            handler(x=df[x_column], y=df[y_column])
-        elif index == 7:  #
+            graph_image = handler(graph_labels, x=df[x_column], y=df[y_column])
+            return graph_image
+        elif index == 7:  
             handler(df)
         else:
             handler(df, **input_params)

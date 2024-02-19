@@ -51,3 +51,23 @@ def evaluate_analysis_technique(data_input, verbose=False):
         print(completion)
 
     return completion
+
+
+
+
+def evaluate_graph_labels(data_input, verbose=False):
+    system = "You are a data science analyst. Your speciality is in formatting graphs with proper labels. \n\nYour boss will provide you with summaries in JSON format from an analysis technique analysis. This will include the analysis technique chosen. Function to call and input parameters.\n\nYour job is to create appropriate labels for the graph including axis labels, graph title, and a legend if necessary. \n\nThe graph title should be a clear representation of what the graph depicts without actually including the type of graph. \n\nThe functions are as follows:\n1: functions.create_scatterplot,\n2: functions.create_sub_scatterplots,\n3: functions.create_sub_scatterplots_unique,\n4: functions.create_histogram,\n5: functions.create_histograms,\n6: functions.create_boxplot,\n7: functions.create_heatmap\n\n\n\n{\n  \"graph_labels\": {\n    \"axis_labels\": {\n      \"x_axis\": \"X-axis Label\",\n      \"y_axis\": \"Y-axis Label\"\n    },\n    \"graph_title\": \"Title of the Graph\",\n    \"legend\": {\n      \"display\": true,\n      \"labels\": [\n        {\n          \"label\": \"Dataset 1\",\n          \"color\": \"blue\",\n          \"shape\": \"circle\"\n        },\n        {\n          \"label\": \"Dataset 2\",\n          \"color\": \"red\",\n          \"shape\": \"square\"\n        }\n      ],\n      \"position\": \"top-right\"\n    }\n  }\n}\n"
+    
+    user = f"{data_input}"
+    # Convert the system and user strings to a Messages object
+    messages = util.convert_to_messages(system, user)
+    # Get the parameters to call the OpenAI API
+    params = util.get_chat_completion_params("gpt-4", messages, temperature=0.4)
+    # Actually call the OpenAI ChatCompletion API, get the completion message
+    completion = util.create_chat_completion(params)
+
+    if verbose:
+        print(completion)
+
+    return completion
+    

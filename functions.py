@@ -153,11 +153,17 @@ def check_data_types(df):
 
 
 # Creates a scatterplot
-def create_scatterplot(x,y):
+def create_scatterplot(graph_labels, x, y):
     plt.scatter(x,y)
-    plt.title('Height vs Weight')
-    plt.xlabel('Height')
-    plt.ylabel('Weight')
+    plt.title(graph_labels.get("graph_title", "Scatterplot"))
+    plt.xlabel(graph_labels.get("axis_labels", {}).get("x_axis", "X-axis"))
+    plt.ylabel(graph_labels.get("axis_labels", {}).get("y_axis", "Y-axis"))
+    print(graph_labels)
+    
+    # Handle legend if specified
+    if graph_labels.get("legend", {}).get("display", False):
+        legend_labels = [label_info.get("label") for label_info in graph_labels["legend"]["labels"]]
+        plt.legend(legend_labels, loc=graph_labels["legend"].get("position", "best"))
     
     
     folder_path = 'report images'  
@@ -167,14 +173,10 @@ def create_scatterplot(x,y):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
     
-    # Combine the folder path and filename to get the full path
     file_path = os.path.join(folder_path, filename)
-    
-    # Save the figure to the specified path
     plt.savefig(file_path)
-    
-    # Close the plot to free memory
     plt.close()
+    return file_path
 
 # Creates multiple scatter plots for columns 
 def create_sub_scatterplots(df, columns):
