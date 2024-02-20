@@ -158,7 +158,6 @@ def create_scatterplot(graph_labels, x, y):
     plt.title(graph_labels.get("graph_title", "Scatterplot"))
     plt.xlabel(graph_labels.get("axis_labels", {}).get("x_axis", "X-axis"))
     plt.ylabel(graph_labels.get("axis_labels", {}).get("y_axis", "Y-axis"))
-    print(graph_labels)
     
     # Handle legend if specified
     if graph_labels.get("legend", {}).get("display", False):
