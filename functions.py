@@ -17,10 +17,11 @@ data_table = "data.csv"
 
 
 def main():
-    df = pd.read_csv(data_table)
-    # phases = df['api_phase'].unique()
-    create_scatterplot(df['Height'], df['Weight'])
-    # create_boxplot(df['quality'])
+    # df = pd.read_csv(data_table)
+    # # phases = df['api_phase'].unique()
+    # create_scatterplot(df['Height'], df['Weight'])
+    # # create_boxplot(df['quality'])
+    pass
   
 
 # Functions to save outputs of exploritory data analysis as images
@@ -178,10 +179,8 @@ def create_scatterplot(graph_labels, x, y):
     return file_path
 
 # Creates multiple scatter plots for columns 
-def create_sub_scatterplots(df, columns):
+def create_sub_scatterplots(graph_labels, x, y, columns):
  
-
-    x = df['quality']
     count_subplots = len(columns)
     columns = 4
     rows = math.ceil(count_subplots / columns)
@@ -192,19 +191,26 @@ def create_sub_scatterplots(df, columns):
         ax = axs[i//4, i%4]  
         ax.scatter(y, x)
         ax.set_title(f'Column: {column}')
-        ax.set_xlabel('Quality')
+        ax.set_xlabel()
         ax.set_ylabel(f"{column}")
 
-    plt.tight_layout()
-    plt.show()
+    folder_path = 'report images'  
+    filename = 'sub_scatterplot.png'
+    
+    
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    
+    file_path = os.path.join(folder_path, filename)
+    plt.savefig(file_path)
+    plt.close()
+    return file_path
 
 
 
 # Creates scatter plots for unique values in a column
-def create_sub_scatterplots_unique(df, phases):
-    print(phases)
-
-    x = df['quality']
+def create_sub_scatterplots_unique(graph_labels, x, y, phases):
+    
     count_subplots = len(phases)
     columns = 4
     rows = math.ceil(count_subplots / columns)
@@ -224,12 +230,23 @@ def create_sub_scatterplots_unique(df, phases):
 
 
 # Creates a histogram
-def create_histogram(x):
+def create_histogram(graph_labels, df, x):
     plt.hist(x)
-    plt.show()
+
+    folder_path = 'report images'  
+    filename = 'histograms.png'
+    
+    
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    
+    file_path = os.path.join(folder_path, filename)
+    plt.savefig(file_path)
+    plt.close()
+    return file_path
 
 # Creates multiple histograms
-def create_histograms(df, columns):
+def create_histograms(graph_labels, df, columns):
     num_columns = len(columns)
     rows = 2  
     cols = math.ceil(num_columns / rows)
@@ -247,18 +264,49 @@ def create_histograms(df, columns):
     for j in range(i + 1, len(axs)):
         axs[j].set_visible(False)
     
-    plt.tight_layout()
-    plt.show()
+    folder_path = 'report images'  
+    filename = 'histograms.png'
+    
+    
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    
+    file_path = os.path.join(folder_path, filename)
+    plt.savefig(file_path)
+    plt.close()
+    return file_path
 
 # Creates a boxplot
-def create_boxplot(x):
+def create_boxplot(graph_labels, x):
     sns.boxplot(x)
-    plt.show()
+
+    folder_path = 'report images'  
+    filename = 'boxplot.png'
+    
+    
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    
+    file_path = os.path.join(folder_path, filename)
+    plt.savefig(file_path)
+    plt.close()
+    return file_path
 
 # Creates a heatmap
 def create_heatmap(df):
     sns.heatmap(df.corr(), annot=True)
-    plt.show()
+
+    folder_path = 'report images'  
+    filename = 'heatmap.png'
+    
+    
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    
+    file_path = os.path.join(folder_path, filename)
+    plt.savefig(file_path)
+    plt.close()
+    return file_path
 
 
 
